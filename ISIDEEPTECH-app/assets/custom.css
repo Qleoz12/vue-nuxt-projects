@@ -1,0 +1,22 @@
+.link__underline {
+    margin: 5px 0 10px
+}
+
+.link__underline {
+    position: relative
+}
+
+.link__underline:after {
+    position: absolute;
+    right: 100%;
+    bottom: 0;
+    left: 0;
+    display: block;
+    border-bottom: 4px solid #ff9c00;
+    content: "";
+    transition: right .3s;
+}
+
+.link__underline:hover:after {
+    right: 0
+}
