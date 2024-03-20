@@ -16,6 +16,11 @@ npm install
 # pnpm
 pnpm install
 ```
+##  tecnical details 
+this repo is based some confs of the next repos 
+
+- https://github.com/misskey-dev/misskey-hub-next (i18n)
+- https://github.com/Atinux/content-wind  (navbar)
 
 ## Development Server
 

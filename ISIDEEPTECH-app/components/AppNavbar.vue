@@ -3,169 +3,47 @@ import { Disclosure, DisclosureButton, DisclosurePanel } from "@headlessui/vue";
 import { Menu, MenuButton, MenuItems, MenuItem } from '@headlessui/vue'
 import { ChevronDownIcon } from '@heroicons/vue/20/solid'
 import { Bars3Icon, XMarkIcon } from "@heroicons/vue/24/outline";
-
-
+import { localesConst } from '@/assets/data/locales';
+import type { LocaleCodes } from '@/assets/data/locales';
+import NavData from '@/assets/data/nav';
 import '~/assets/custom.css'
+
+
+const navOpen = ref(false);
+
+const { locale: currentLocale } = useI18n();
+const route = useRoute();
+const { push } = useRouter();
+const currentPath = ref(route.path);
+
+watch(() => route.path, (to) => {
+  currentPath.value = to;
+}, {
+  immediate: true,
+});
+
+const switchLocalePath = useGSwitchLocalePath();
+const localePath = useGLocalePath();
+const spLocaleOption = ref(currentLocale.value as LocaleCodes);
+function changeLocale() {
+  const path = switchLocalePath(spLocaleOption.value);
+  push(path);
+}
+
+const colorMode = useColorMode();
+function rotateColorMode() {
+  const values = ['system', 'light', 'dark'];
+  const index = values.indexOf(colorMode.preference);
+  const next = (index + 1) % values.length;
+
+  colorMode.preference = values[next];
+}
+
+
 
 const appConfig = useAppConfig()
 // const { navigation } = useContent()
 
-
-
-const navigation = computed(() => [
-
-  {
-    name: "inicio",
-    href: "/",
-    current: useRoute().path == "/",
-    external: false,
-
-  },
-  {
-    name: "sobre nosotros",
-    external: false,
-    type: "group",
-    children: [{
-      name: "sobre nosotros",
-      href: "/about/",
-      current: useRoute().path == "/about/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "aliados",
-      href: "/alies/",
-      current: useRoute().path == "/alies/",
-      external: false,
-      type: "single"
-
-    }]
-  },
-  {
-    name: "servicios",
-    href: "/repos/",
-    current: useRoute().path == "/repos/",
-    external: true,
-    type: "group",
-    children: [{
-      name: "Consultoria en IA",
-      href: "/about/",
-      current: useRoute().path == "/about/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "Capacitación en IA",
-      href: "/alies/",
-      current: useRoute().path == "/alies/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "SAAS",
-      href: "/SAAS/",
-      current: useRoute().path == "/SAAS/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "plataforma",
-      href: "/platform/",
-      current: useRoute().path == "/platform/",
-      external: false,
-      type: "single"
-
-    }]
-  },
-  {
-    name: "soluciones",
-    href: "/solutions/",
-    current: useRoute().path.includes("/solutions/"),
-    external: false,
-    type: "group",
-    children: [{
-      name: "Legal tech",
-      href: "/Legaltech/",
-      current: useRoute().path == "/Legaltech/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "Legal tech",
-      href: "/Legaltech/",
-      current: useRoute().path == "/Legaltech/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "Healthtech",
-      href: "/Healthtech/",
-      current: useRoute().path == "/Healthtech/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "Natural language processing",
-      href: "/NLP/",
-      current: useRoute().path == "/NLP/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "Seguridad ciudadana",
-      href: "/Seguridadciudadana/",
-      current: useRoute().path == "/Seguridadciudadana/",
-      external: false,
-      type: "single"
-
-    },
-    {
-      name: "Gestión documental",
-      href: "/Gestiondocumental/",
-      current: useRoute().path == "/Gestiondocumental/",
-      external: false,
-      type: "single"
-
-    }
-    ]
-  },
-  {
-    name: "industrias",
-    href: "/industry/",
-    current: useRoute().path.includes("/industry/"),
-    external: false,
-    type: "single"
-  },
-  {
-    name: "casos de uso",
-    href: "/casesuse/",
-    current: useRoute().path.includes("/casesuse/"),
-    external: false,
-    type: "single"
-  },
-  {
-    name: "casos de exito",
-    href: "/casessuscess/",
-    current: useRoute().path.includes("/casessuscess/"),
-    external: false,
-    type: "single"
-  },
-  {
-    name: "blog",
-    href: "/blog/",
-    current: useRoute().path.includes("/blog/"),
-    external: false,
-    type: "single"
-  },
-]);
 </script>
 
 <template>
@@ -190,22 +68,22 @@ const navigation = computed(() => [
           </div>
           <div class="hidden sm:ml-6 sm:block">
             <div class="flex space-x-4">
-              <template v-for="item in navigation">
-                <NuxtLink v-if="!item.type || item.type !== 'group'" :key="item.name" :to="item.href"
+              <template v-for="item in NavData.center">
+                <NuxtLink v-if="!item.type || item.type !== 'group'" :key="item.i18n" :to="localePath(item.to)"
                   :external="item.external" :class="[
     item.current
       ? 'bg-gray-900 text-white'
       : 'text-gray-300',
     'rounded-md px-3 py-2 text-sm font-medium link__underline hover:text-orange-400',
-  ]" :aria-current="item.current ? 'page' : undefined">{{ item.name }}</NuxtLink>
-                <div v-else :key="item.name" class="relative">
+  ]" :aria-current="item.current ? 'page' : undefined">{{ item.i18n }}</NuxtLink>
+                <div v-else :key="item.i18n" class="relative">
                   <template>
                     <div>
                       <Menu as="div" class="relative inline-block text-left">
                         <div>
                           <MenuButton
                             class="inline-flex w-full justify-center rounded-md bg-black/20 px-4 py-2 text-sm font-medium text-white hover:bg-black/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75">
-                            {{ item.name }}
+                            {{ item.i18n }}
                             <ChevronDownIcon class="-mr-1 ml-2 h-5 w-5 text-violet-200 hover:text-violet-100"
                               aria-hidden="true" />
                           </MenuButton>
@@ -219,18 +97,15 @@ const navigation = computed(() => [
                           <MenuItems
                             class="absolute right-0 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                             <div class="px-1 py-1">
-                              <MenuItem v-slot="{ active }" v-for="child in item.children" 
-                              :key="child.name"
-                              :to="child.href">
+                              <MenuItem v-slot="{ active }" v-for="child in item.items" :key="child.i18n"
+                                :to="child.to">
 
-                              <NuxtLink :key="item.name" :to="item.href"
-                                              :external="item.external" :class="[
-                                  active ? 'bg-violet-500 text-white' : 'text-gray-900',
-                                  'group flex w-full items-center rounded-md px-2 py-2 text-sm',
-                                ]"
-                                 :aria-current="item.current ? 'page' : undefined">{{ child.name }}
+                              <NuxtLink :key="item.i18n" :to="item.to" :external="item.external" :class="[
+    active ? 'bg-violet-500 text-white' : 'text-gray-900',
+    'group flex w-full items-center rounded-md px-2 py-2 text-sm',
+  ]" :aria-current="item.current ? 'page' : undefined">{{ child.i18n }}
                               </NuxtLink>
-    
+
                               </MenuItem>
 
                             </div>
@@ -244,17 +119,26 @@ const navigation = computed(() => [
             </div>
           </div>
         </div>
-        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"></div>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+          <div class="input-group">
+            <span class="input-group-text !rounded-l-full">
+              <I18nIcon class="h-5 w-5" /><span class="sr-only">{{ $t('_nav.switchLang') }}</span>
+            </span>
+            <select class="form-select !rounded-r-full" v-model="spLocaleOption" @change="changeLocale()">
+              <option v-for="locale in localesConst" :value="locale.code">{{ locale.name }}</option>
+            </select>
+          </div>
+        </div>
       </div>
     </div>
 
     <DisclosurePanel class="sm:hidden">
       <div class="space-y-1 px-2 pb-3 pt-2">
-        <DisclosureButton v-for="item in navigation" :key="item.name" as="a" :href="item.href" :class="[
+        <DisclosureButton v-for="item in NavData.center" :key="item.i18n" as="a" :to="item.to" :class="[
     item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
     'block rounded-md px-3 py-2 text-base font-medium',
   ]" :aria-current="item.current ? 'page' : undefined">
-          {{ item.name }}
+          {{ item.i18n }}
         </DisclosureButton>
       </div>
     </DisclosurePanel>
